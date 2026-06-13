@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateText } from "ai";
 import { z } from "zod";
-import type { TestRunResult, TestCaseResult } from "./codescan-types";
+import type { GeneratedTests } from "./codescan-types";
 
 const TestInput = z.object({
   code: z.string().trim().min(1).max(80000),
@@ -48,24 +48,9 @@ function extractJson(text: string): unknown {
   return JSON.parse(raw.slice(start, end + 1));
 }
 
-async function runOne(setup: string, code: string): Promise<TestCaseResult & { name: string }> {
-  const body = `${setup}\n;return (async () => {\n${code}\n})();`;
-  try {
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(body) as () => Promise<unknown>;
-    await Promise.race([
-      fn(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Test timed out")), 3000)),
-    ]);
-    return { name: "", passed: true, error: null };
-  } catch (e) {
-    return { name: "", passed: false, error: e instanceof Error ? e.message : String(e) };
-  }
-}
-
-export const runEdgeCaseTests = createServerFn({ method: "POST" })
+export const generateEdgeCaseTests = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => TestInput.parse(input))
-  .handler(async ({ data }): Promise<TestRunResult> => {
+  .handler(async ({ data }): Promise<GeneratedTests> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("AI is not configured (missing LOVABLE_API_KEY).");
 
@@ -110,9 +95,7 @@ export const runEdgeCaseTests = createServerFn({ method: "POST" })
         runnable: false,
         reason: parsed.reason ?? "This code can't be executed in the JS/TS test sandbox.",
         language,
-        total: 0,
-        passed: 0,
-        failed: 0,
+        setup: "",
         tests: [],
       };
     }
@@ -129,27 +112,16 @@ export const runEdgeCaseTests = createServerFn({ method: "POST" })
         runnable: false,
         reason: parsed.reason ?? "No runnable test cases could be generated for this code.",
         language,
-        total: 0,
-        passed: 0,
-        failed: 0,
+        setup: "",
         tests: [],
       };
     }
 
-    const tests: TestCaseResult[] = [];
-    for (const t of valid) {
-      const r = await runOne(setup, t.code);
-      tests.push({ name: t.name || "unnamed test", passed: r.passed, error: r.error });
-    }
-
-    const passed = tests.filter((t) => t.passed).length;
     return {
       runnable: true,
       reason: null,
       language,
-      total: tests.length,
-      passed,
-      failed: tests.length - passed,
-      tests,
+      setup,
+      tests: valid.map((t) => ({ name: t.name || "unnamed test", code: t.code })),
     };
   });
