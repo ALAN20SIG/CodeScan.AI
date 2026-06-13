@@ -222,6 +222,7 @@ export const reviewRepo = createServerFn({ method: "POST" })
       languages,
       tree,
       filesReviewed,
+      keyFileContents: fileBlocks.join("\n\n").slice(0, 80000),
     };
 
     const userContent = `Repository: ${owner}/${repo} (branch: ${branch})
