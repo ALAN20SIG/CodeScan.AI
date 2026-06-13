@@ -44,6 +44,14 @@ export interface TestRunResult {
   tests: TestCaseResult[];
 }
 
+export interface GeneratedTests {
+  runnable: boolean;
+  reason: string | null;
+  language: string;
+  setup: string;
+  tests: { name: string; code: string }[];
+}
+
 export const CATEGORIES: { key: Category; label: string }[] = [
   { key: "bugs", label: "Bugs" },
   { key: "security", label: "Security" },
