@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { reviewCode } from "@/lib/review.functions";
 import { reviewRepo } from "@/lib/repo-review.functions";
 import { generateEdgeCaseTests } from "@/lib/test-runner.functions";
-import { runGeneratedTests } from "@/lib/run-tests.client";
 import { buildMarkdownReport } from "@/lib/report";
 import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
