@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { reviewCode } from "@/lib/review.functions";
 import { reviewRepo } from "@/lib/repo-review.functions";
+import { runEdgeCaseTests } from "@/lib/test-runner.functions";
 import { buildMarkdownReport } from "@/lib/report";
 import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
@@ -15,6 +16,7 @@ import { CategoryTabs } from "@/components/codescan/CategoryTabs";
 import { FindingCard } from "@/components/codescan/FindingCard";
 import { ScanningState } from "@/components/codescan/ScanningState";
 import { ManualInput } from "@/components/codescan/ManualInput";
+import { TestPanel } from "@/components/codescan/TestPanel";
 import { BottomBar } from "@/components/codescan/BottomBar";
 
 const searchSchema = z.object({
@@ -39,8 +41,10 @@ function Index() {
   const { code, lang } = Route.useSearch();
   const review = useServerFn(reviewCode);
   const repoReview = useServerFn(reviewRepo);
+  const runTests = useServerFn(runEdgeCaseTests);
   const [activeTab, setActiveTab] = useState<Category>("bugs");
   const [copied, setCopied] = useState(false);
+  const [tested, setTested] = useState<{ code: string; language: string }>({ code: "", language: "" });
   const autoRan = useRef(false);
 
   const mutation = useMutation({
@@ -54,25 +58,52 @@ function Index() {
     onSuccess: () => setActiveTab("bugs"),
   });
 
+  const testMutation = useMutation({
+    mutationFn: (vars: { code: string; language: string }) => runTests({ data: vars }),
+  });
+
   useEffect(() => {
     if (autoRan.current) return;
     if (code && code.trim()) {
       autoRan.current = true;
+      setTested({ code, language: lang || "Other" });
       mutation.mutate({ code, language: lang || "Other" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, lang]);
 
   const handleSubmit = (c: string, language: string) => {
+    setTested({ code: c, language });
     mutation.mutate({ code: c, language });
   };
 
   const handleRepoSubmit = (url: string, branch: string) => {
+    setTested({ code: "", language: "" });
     repoMutation.mutate({ url, branch });
   };
 
   const data = mutation.data ?? repoMutation.data;
   const isPending = mutation.isPending || repoMutation.isPending;
+
+  // Resolve the code that edge-case tests should run against.
+  const repoCode = repoMutation.data?.structure?.keyFileContents ?? "";
+  const repoLang =
+    repoMutation.data?.structure?.languages?.[0]?.name ?? repoMutation.data?.language ?? "JavaScript";
+  const testCode = tested.code || repoCode;
+  const testLang = tested.code ? tested.language : repoLang;
+  const canRunTests = testCode.trim().length > 0;
+
+  const handleRunTests = () => {
+    if (!canRunTests) return;
+    testMutation.mutate({ code: testCode, language: testLang });
+  };
+
+  const testError =
+    testMutation.error instanceof Error
+      ? testMutation.error.message
+      : testMutation.error
+        ? "Test run failed."
+        : null;
 
   const handleCopy = async () => {
     if (!data) return;
@@ -101,9 +132,15 @@ function Index() {
           onReviewAgain={() => {
             mutation.reset();
             repoMutation.reset();
+            testMutation.reset();
           }}
           onCopy={handleCopy}
           copied={copied}
+          onRunTests={handleRunTests}
+          testPending={testMutation.isPending}
+          testResult={testMutation.data ?? null}
+          testError={testError}
+          canRunTests={canRunTests}
         />
       ) : (
         <>
@@ -122,6 +159,11 @@ function ResultView({
   onReviewAgain,
   onCopy,
   copied,
+  onRunTests,
+  testPending,
+  testResult,
+  testError,
+  canRunTests,
 }: {
   result: import("@/lib/codescan-types").ReviewResult;
   activeTab: Category;
@@ -129,6 +171,11 @@ function ResultView({
   onReviewAgain: () => void;
   onCopy: () => void;
   copied: boolean;
+  onRunTests: () => void;
+  testPending: boolean;
+  testResult: import("@/lib/codescan-types").TestRunResult | null;
+  testError: string | null;
+  canRunTests: boolean;
 }) {
   const items = result.findings.filter((f) => f.category === activeTab);
   const tabLabel = CATEGORIES.find((c) => c.key === activeTab)?.label ?? "";
@@ -142,6 +189,13 @@ function ResultView({
           {result.summary}
         </p>
       )}
+      <TestPanel
+        onRun={onRunTests}
+        isPending={testPending}
+        result={testResult}
+        error={testError}
+        canRun={canRunTests}
+      />
       <CategoryTabs active={activeTab} onChange={setActiveTab} findings={result.findings} />
       <div className="flex-1 overflow-y-auto px-3 py-3">
         <AnimatePresence mode="wait">
