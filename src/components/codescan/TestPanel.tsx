@@ -1,6 +1,34 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { TestRunResult } from "@/lib/codescan-types";
 
+function buildReport(result: TestRunResult): string {
+  const lines: string[] = [];
+  lines.push(`Edge-case test results (${result.language})`);
+  lines.push(`Generated: ${new Date().toLocaleString()}`);
+  lines.push("");
+  lines.push(`Total:  ${result.total}`);
+  lines.push(`Passed: ${result.passed}`);
+  lines.push(`Failed: ${result.failed}`);
+  lines.push("");
+  result.tests.forEach((t, i) => {
+    lines.push(`${i + 1}. [${t.passed ? "PASS" : "FAIL"}] ${t.name}`);
+    if (!t.passed && t.error) lines.push(`     ↳ ${t.error}`);
+  });
+  return lines.join("\n");
+}
+
+function saveResults(result: TestRunResult) {
+  const blob = new Blob([buildReport(result)], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `edge-case-test-results-${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function TestPanel({
   onRun,
   isPending,
@@ -18,14 +46,25 @@ export function TestPanel({
     <div className="border-b border-cs-border bg-cs-surface px-4 py-3 md:px-6">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-bold text-cs-text">Edge-case tests</p>
-        <button
-          type="button"
-          onClick={onRun}
-          disabled={isPending || !canRun}
-          className="shrink-0 rounded-md bg-cs-info px-3 py-2 text-xs font-bold text-cs-bg transition-colors hover:bg-cs-info/90 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {isPending ? "Running…" : result ? "Re-run tests" : "Run tests"}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {result && result.runnable && (
+            <button
+              type="button"
+              onClick={() => saveResults(result)}
+              className="rounded-md border border-cs-border bg-cs-surface-2 px-3 py-2 text-xs font-bold text-cs-text transition-colors hover:bg-cs-bg"
+            >
+              Save results
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onRun}
+            disabled={isPending || !canRun}
+            className="rounded-md bg-cs-info px-3 py-2 text-xs font-bold text-cs-bg transition-colors hover:bg-cs-info/90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isPending ? "Running…" : result ? "Re-run tests" : "Run tests"}
+          </button>
+        </div>
       </div>
       {!canRun && (
         <p className="mt-2 text-xs text-cs-muted">
@@ -59,17 +98,22 @@ export function TestPanel({
                   {result.tests.map((t, i) => (
                     <li
                       key={i}
-                      className="rounded-md border border-cs-border bg-cs-bg p-3"
+                      className={`rounded-md border bg-cs-bg p-3 ${
+                        t.passed ? "border-cs-success/30" : "border-cs-critical/40"
+                      }`}
                     >
                       <div className="flex items-start gap-2">
                         <span
-                          className={`mt-0.5 shrink-0 font-mono text-xs font-bold ${
-                            t.passed ? "text-cs-success" : "text-cs-critical"
+                          className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold ${
+                            t.passed
+                              ? "bg-cs-success/15 text-cs-success"
+                              : "bg-cs-critical/15 text-cs-critical"
                           }`}
                         >
-                          {t.passed ? "PASS" : "FAIL"}
+                          {t.passed ? "✓" : "✕"}
                         </span>
                         <span className="min-w-0 text-xs leading-relaxed text-cs-text">
+                          <span className="mr-1.5 font-mono text-cs-muted">#{i + 1}</span>
                           {t.name}
                         </span>
                       </div>
