@@ -4,6 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-cs-bg: #0d1117;
+  --color-cs-surface: #161b22;
+  --color-cs-surface-2: #1c2128;
+  --color-cs-border: #30363d;
+  --color-cs-text: #e6edf3;
+  --color-cs-muted: #8b949e;
+  --color-cs-critical: #f85149;
+  --color-cs-warning: #d29922;
+  --color-cs-info: #58a6ff;
+  --color-cs-success: #3fb950;
+  --color-cs-grade-good: #3fb950;
+  --color-cs-grade-mid: #d29922;
+  --color-cs-grade-bad: #f85149;
+}
+
 /*
  * Design system definition.
  *
