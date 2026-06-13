@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { LANGUAGES } from "@/lib/codescan-types";
+import { useServerFn } from "@tanstack/react-start";
+import { fetchGithubFile } from "@/lib/github.functions";
 
 const SAMPLE = `function getUser(req, db) {
   const id = req.query.id;
@@ -16,6 +18,27 @@ export function ManualInput({
 }) {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<string>("JavaScript");
+  const [ghUrl, setGhUrl] = useState("");
+  const [ghError, setGhError] = useState<string | null>(null);
+  const [ghLoading, setGhLoading] = useState(false);
+  const getGithubFile = useServerFn(fetchGithubFile);
+
+  const handleFetch = async () => {
+    if (!ghUrl.trim() || ghLoading) return;
+    setGhError(null);
+    setGhLoading(true);
+    try {
+      const res = await getGithubFile({ data: { url: ghUrl.trim() } });
+      setCode(res.code);
+      if (LANGUAGES.includes(res.language as (typeof LANGUAGES)[number])) {
+        setLanguage(res.language);
+      }
+    } catch (e) {
+      setGhError(e instanceof Error ? e.message : "Failed to fetch file.");
+    } finally {
+      setGhLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-3 py-3">
@@ -23,6 +46,32 @@ export function ManualInput({
         Paste code to get an AI-powered review with bugs, security, quality, and
         suggestions.
       </p>
+      <div className="flex flex-col gap-1.5 rounded-lg border border-cs-border bg-cs-surface p-2.5">
+        <label className="text-[11px] font-medium text-cs-muted">
+          Review from a public GitHub file
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            value={ghUrl}
+            onChange={(e) => setGhUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleFetch();
+            }}
+            placeholder="https://github.com/owner/repo/blob/main/file.js"
+            spellCheck={false}
+            className="min-w-0 flex-1 rounded-md border border-cs-border bg-cs-surface-2 px-2 py-2 font-mono text-[11px] text-cs-text outline-none placeholder:text-cs-muted focus:border-cs-info"
+          />
+          <button
+            type="button"
+            onClick={handleFetch}
+            disabled={!ghUrl.trim() || ghLoading}
+            className="shrink-0 rounded-md border border-cs-border bg-cs-surface-2 px-2.5 py-2 text-xs text-cs-text transition-colors hover:border-cs-info disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {ghLoading ? "Fetching…" : "Fetch"}
+          </button>
+        </div>
+        {ghError && <p className="text-[11px] text-cs-critical">{ghError}</p>}
+      </div>
       <textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
