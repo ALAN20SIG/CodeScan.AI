@@ -11,6 +11,10 @@ function buildReport(run: TestSuiteRun): string {
   lines.push("");
   lines.push(`Overall grade: ${suite.evaluation.grade}`);
   lines.push(`Verdict: ${suite.evaluation.verdict}`);
+  if (suite.evaluation.reasoning) {
+    lines.push("");
+    lines.push(`Reasoning: ${suite.evaluation.reasoning}`);
+  }
   lines.push("");
   lines.push(`Executable cases: ${run.executed}  |  Passed: ${run.passed}  |  Failed: ${run.failed}`);
   lines.push("");
