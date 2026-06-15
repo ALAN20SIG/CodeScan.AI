@@ -9,6 +9,7 @@ import { reviewCode } from "@/lib/review.functions";
 import { reviewRepo } from "@/lib/repo-review.functions";
 import { generateEdgeCaseTests } from "@/lib/test-runner.functions";
 import { generateTestSuite } from "@/lib/test-suite.functions";
+import { runPipeline } from "@/lib/pipeline.functions";
 import { buildMarkdownReport } from "@/lib/report";
 import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
@@ -19,6 +20,7 @@ import { ScanningState } from "@/components/codescan/ScanningState";
 import { ManualInput } from "@/components/codescan/ManualInput";
 import { TestPanel } from "@/components/codescan/TestPanel";
 import { TestSuitePanel } from "@/components/codescan/TestSuitePanel";
+import { PipelinePanel } from "@/components/codescan/PipelinePanel";
 import { BottomBar } from "@/components/codescan/BottomBar";
 
 const searchSchema = z.object({
@@ -45,6 +47,7 @@ function Index() {
   const repoReview = useServerFn(reviewRepo);
   const genTests = useServerFn(generateEdgeCaseTests);
   const genSuite = useServerFn(generateTestSuite);
+  const runCi = useServerFn(runPipeline);
   const [activeTab, setActiveTab] = useState<Category>("bugs");
   const [copied, setCopied] = useState(false);
   const [tested, setTested] = useState<{ code: string; language: string }>({ code: "", language: "" });
@@ -75,6 +78,10 @@ function Index() {
       const suite = await genSuite({ data: vars });
       return runTestSuite(suite);
     },
+  });
+
+  const pipelineMutation = useMutation({
+    mutationFn: (vars: { code: string; language: string }) => runCi({ data: vars }),
   });
 
   useEffect(() => {
@@ -118,6 +125,11 @@ function Index() {
     suiteMutation.mutate({ code: testCode, language: testLang });
   };
 
+  const handleRunPipeline = () => {
+    if (!canRunTests) return;
+    pipelineMutation.mutate({ code: testCode, language: testLang });
+  };
+
   const testError =
     testMutation.error instanceof Error
       ? testMutation.error.message
@@ -130,6 +142,13 @@ function Index() {
       ? suiteMutation.error.message
       : suiteMutation.error
         ? "Test suite failed."
+        : null;
+
+  const pipelineError =
+    pipelineMutation.error instanceof Error
+      ? pipelineMutation.error.message
+      : pipelineMutation.error
+        ? "Pipeline run failed."
         : null;
 
   const handleCopy = async () => {
@@ -161,6 +180,7 @@ function Index() {
             repoMutation.reset();
             testMutation.reset();
             suiteMutation.reset();
+            pipelineMutation.reset();
           }}
           onCopy={handleCopy}
           copied={copied}
@@ -173,6 +193,10 @@ function Index() {
           suitePending={suiteMutation.isPending}
           suiteRun={suiteMutation.data ?? null}
           suiteError={suiteError}
+          onRunPipeline={handleRunPipeline}
+          pipelinePending={pipelineMutation.isPending}
+          pipelineResult={pipelineMutation.data ?? null}
+          pipelineError={pipelineError}
         />
       ) : (
         <>
@@ -200,6 +224,10 @@ function ResultView({
   suitePending,
   suiteRun,
   suiteError,
+  onRunPipeline,
+  pipelinePending,
+  pipelineResult,
+  pipelineError,
 }: {
   result: import("@/lib/codescan-types").ReviewResult;
   activeTab: Category;
@@ -216,6 +244,10 @@ function ResultView({
   suitePending: boolean;
   suiteRun: import("@/lib/codescan-types").TestSuiteRun | null;
   suiteError: string | null;
+  onRunPipeline: () => void;
+  pipelinePending: boolean;
+  pipelineResult: import("@/lib/codescan-types").PipelineResult | null;
+  pipelineError: string | null;
 }) {
   const items = result.findings.filter((f) => f.category === activeTab);
   const tabLabel = CATEGORIES.find((c) => c.key === activeTab)?.label ?? "";
@@ -241,6 +273,13 @@ function ResultView({
         isPending={suitePending}
         run={suiteRun}
         error={suiteError}
+        canRun={canRunTests}
+      />
+      <PipelinePanel
+        onRun={onRunPipeline}
+        isPending={pipelinePending}
+        result={pipelineResult}
+        error={pipelineError}
         canRun={canRunTests}
       />
       <CategoryTabs active={activeTab} onChange={setActiveTab} findings={result.findings} />
