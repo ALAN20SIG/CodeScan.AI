@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Switch } from "@/components/ui/switch";
 import type { TestSuiteRun, SuiteSection, SuiteKey } from "@/lib/codescan-types";
 
 function buildReport(run: TestSuiteRun): string {
@@ -170,6 +171,7 @@ export function TestSuitePanel({
   error: string | null;
   canRun: boolean;
 }) {
+  const [showReasoning, setShowReasoning] = useState(true);
   return (
     <div className="border-b border-cs-border bg-cs-bg px-4 py-4 md:px-6">
       <div className="flex items-center justify-between gap-2">
@@ -229,13 +231,36 @@ export function TestSuitePanel({
                 </p>
               )}
               {run.suite.evaluation.reasoning && (
-                <div className="mt-3 rounded-md border border-cs-border bg-cs-bg p-3">
-                  <p className="text-xs font-bold uppercase tracking-wide text-cs-muted">
-                    Reasoning
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed text-cs-text">
-                    {run.suite.evaluation.reasoning}
-                  </p>
+                <div className="mt-3">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="reasoning-toggle"
+                      checked={showReasoning}
+                      onCheckedChange={setShowReasoning}
+                    />
+                    <label
+                      htmlFor="reasoning-toggle"
+                      className="cursor-pointer text-xs font-bold uppercase tracking-wide text-cs-muted"
+                    >
+                      AI Reasoning
+                    </label>
+                  </div>
+                  <AnimatePresence>
+                    {showReasoning && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-2 rounded-md border border-cs-border bg-cs-bg p-3">
+                          <p className="text-xs leading-relaxed text-cs-text">
+                            {run.suite.evaluation.reasoning}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
               {run.suite.evaluation.recommendations.length > 0 && (
