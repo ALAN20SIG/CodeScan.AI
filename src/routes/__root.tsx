@@ -77,14 +77,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "CodeScan AI" },
+      {
+        name: "description",
+        content:
+          "AI-powered code reviewer that finds bugs, security issues, and quality problems, then generates tests and simulates a CI/CD pipeline.",
+      },
+      { property: "og:site_name", content: "CodeScan AI" },
+      { property: "og:title", content: "CodeScan AI — AI Code Reviewer" },
+      {
+        property: "og:description",
+        content:
+          "AI-powered code review: bugs, security, quality, suggestions, automated tests, and CI/CD simulation in seconds.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
