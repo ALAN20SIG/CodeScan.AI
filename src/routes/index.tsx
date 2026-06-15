@@ -11,7 +11,6 @@ import { generateEdgeCaseTests } from "@/lib/test-runner.functions";
 import { generateTestSuite } from "@/lib/test-suite.functions";
 import { runPipeline } from "@/lib/pipeline.functions";
 import { buildMarkdownReport } from "@/lib/report";
-import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
 import { TopBar } from "@/components/codescan/TopBar";
 import { CategoryTabs } from "@/components/codescan/CategoryTabs";
