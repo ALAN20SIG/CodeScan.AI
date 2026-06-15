@@ -1,4 +1,4 @@
-# CodeScan AI
+# GithubScan AI
 
 AI-powered code review for bugs, security vulnerabilities, quality issues, improvement suggestions, and comprehensive testing. Supports manual code input, full GitHub repository analysis, automated edge-case testing, full test suite generation, and CI/CD pipeline simulation.
 
