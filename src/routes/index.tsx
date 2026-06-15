@@ -11,10 +11,10 @@ import { generateEdgeCaseTests } from "@/lib/test-runner.functions";
 import { generateTestSuite } from "@/lib/test-suite.functions";
 import { runPipeline } from "@/lib/pipeline.functions";
 import { buildMarkdownReport } from "@/lib/report";
-import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
 import { TopBar } from "@/components/codescan/TopBar";
 import { CategoryTabs } from "@/components/codescan/CategoryTabs";
+import type { ViewTab } from "@/components/codescan/CategoryTabs";
 import { FindingCard } from "@/components/codescan/FindingCard";
 import { ScanningState } from "@/components/codescan/ScanningState";
 import { ManualInput } from "@/components/codescan/ManualInput";
@@ -48,7 +48,7 @@ function Index() {
   const genTests = useServerFn(generateEdgeCaseTests);
   const genSuite = useServerFn(generateTestSuite);
   const runCi = useServerFn(runPipeline);
-  const [activeTab, setActiveTab] = useState<Category>("bugs");
+  const [activeTab, setActiveTab] = useState<ViewTab>("bugs");
   const [copied, setCopied] = useState(false);
   const [tested, setTested] = useState<{ code: string; language: string }>({ code: "", language: "" });
   const autoRan = useRef(false);
@@ -230,8 +230,8 @@ function ResultView({
   pipelineError,
 }: {
   result: import("@/lib/codescan-types").ReviewResult;
-  activeTab: Category;
-  setActiveTab: (c: Category) => void;
+  activeTab: ViewTab;
+  setActiveTab: (c: ViewTab) => void;
   onReviewAgain: () => void;
   onCopy: () => void;
   copied: boolean;
@@ -275,14 +275,23 @@ function ResultView({
         error={suiteError}
         canRun={canRunTests}
       />
-      <PipelinePanel
-        onRun={onRunPipeline}
-        isPending={pipelinePending}
-        result={pipelineResult}
-        error={pipelineError}
-        canRun={canRunTests}
+      <CategoryTabs
+        active={activeTab}
+        onChange={setActiveTab}
+        findings={result.findings}
+        pipelineStatus={pipelineResult ? (pipelineResult.success ? "passed" : "failed") : null}
       />
-      <CategoryTabs active={activeTab} onChange={setActiveTab} findings={result.findings} />
+      {activeTab === "cicd" ? (
+        <div className="flex-1 overflow-y-auto">
+          <PipelinePanel
+            onRun={onRunPipeline}
+            isPending={pipelinePending}
+            result={pipelineResult}
+            error={pipelineError}
+            canRun={canRunTests}
+          />
+        </div>
+      ) : (
       <div className="flex-1 overflow-y-auto px-4 py-4 md:px-6">
         <AnimatePresence mode="wait">
           <motion.div
@@ -306,6 +315,7 @@ function ResultView({
           </motion.div>
         </AnimatePresence>
       </div>
+      )}
       <BottomBar onReviewAgain={onReviewAgain} onCopy={onCopy} copied={copied} />
     </>
   );
