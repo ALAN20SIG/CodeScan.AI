@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Switch } from "@/components/ui/switch";
 import type { TestSuiteRun, SuiteSection, SuiteKey } from "@/lib/codescan-types";
 
 function buildReport(run: TestSuiteRun): string {
