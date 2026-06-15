@@ -120,6 +120,50 @@ export const SUITE_SECTIONS: { key: SuiteKey; label: string }[] = [
   { key: "cicd", label: "CI/CD pipeline" },
 ];
 
+export type PipelineStageKey =
+  | "lint"
+  | "unit"
+  | "integration"
+  | "build"
+  | "deploy";
+
+export type StageStatus = "passed" | "failed" | "skipped";
+
+export interface PipelineStage {
+  key: PipelineStageKey;
+  label: string;
+  status: StageStatus;
+  /** Simulated duration in seconds. */
+  durationSec: number;
+  /** Short summary of what happened in this stage. */
+  summary: string;
+  /** Console-style log lines for the stage. */
+  logs: string[];
+  /** Problems detected that affect the stage result. */
+  issues: string[];
+}
+
+export interface PipelineResult {
+  language: string;
+  stages: PipelineStage[];
+  passed: number;
+  failed: number;
+  skipped: number;
+  /** Final CI grade, e.g. A, B+, F. */
+  grade: string;
+  /** True only when every non-skipped stage passed. */
+  success: boolean;
+  verdict: string;
+}
+
+export const PIPELINE_STAGES: { key: PipelineStageKey; label: string }[] = [
+  { key: "lint", label: "Lint" },
+  { key: "unit", label: "Unit tests" },
+  { key: "integration", label: "Integration tests" },
+  { key: "build", label: "Build" },
+  { key: "deploy", label: "Deploy" },
+];
+
 export const CATEGORIES: { key: Category; label: string }[] = [
   { key: "bugs", label: "Bugs" },
   { key: "security", label: "Security" },
