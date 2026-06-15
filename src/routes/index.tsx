@@ -36,6 +36,23 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "AI-powered code review: bugs, security, quality and suggestions in seconds." },
       { property: "og:title", content: "CodeScan AI — AI Code Reviewer" },
       { property: "og:description", content: "AI-powered code review: bugs, security, quality and suggestions in seconds." },
+      { property: "og:url", content: "https://ntellicode-pal.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://ntellicode-pal.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "CodeScan AI",
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Web",
+          description:
+            "AI-powered code reviewer that finds bugs, security vulnerabilities, and quality issues, then generates tests and simulates a CI/CD pipeline.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        }),
+      },
     ],
   }),
   component: Index,
