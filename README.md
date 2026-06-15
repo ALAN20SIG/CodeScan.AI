@@ -317,7 +317,9 @@ Click **Deploy**. Vercel will build and deploy your site automatically on every 
 - **Output Directory:** auto-detected by Nitro (`vercel-edge` preset)
 - **Install Command:** `bun install`
 
-The `vercel.json` and `vite.config.ts` in this repo already configure the `vercel-edge` Nitro preset for optimal SSR performance on Vercel's edge network.
+The `vite.config.ts` in this repo already configures the `vercel-edge` Nitro preset for optimal SSR performance on Vercel's edge network.
+
+> **Note:** When you run `bun run build` locally or in the Lovable sandbox, you'll see `wrangler.json` generated — this is because the Lovable config forces Cloudflare for preview builds. When Vercel runs the build on its own infrastructure, the `vercel-edge` preset takes effect and the output is correctly formatted for Vercel.
 
 #### Troubleshooting
 - **Build fails:** Ensure `LOVABLE_API_KEY` is set in Vercel environment variables
