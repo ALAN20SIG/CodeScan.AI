@@ -77,21 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CodeScan AI" },
-      {
-        name: "description",
-        content:
-          "AI-powered code reviewer that finds bugs, security issues, and quality problems, then generates tests and simulates a CI/CD pipeline.",
-      },
-      { property: "og:site_name", content: "CodeScan AI" },
-      { property: "og:title", content: "CodeScan AI — AI Code Reviewer" },
-      {
-        property: "og:description",
-        content:
-          "AI-powered code review: bugs, security, quality, suggestions, automated tests, and CI/CD simulation in seconds.",
-      },
+      { title: "Lovable App" },
+      { name: "description", content: "AI-powered code reviewer for VS Code that analyzes code for bugs, security, quality, and suggestions." },
+      { name: "author", content: "Lovable" },
+      { property: "og:title", content: "Lovable App" },
+      { property: "og:description", content: "AI-powered code reviewer for VS Code that analyzes code for bugs, security, quality, and suggestions." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Lovable App" },
+      { name: "twitter:description", content: "AI-powered code reviewer for VS Code that analyzes code for bugs, security, quality, and suggestions." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3a6f422d-945f-4fd3-91fd-c98ae2b26a49/id-preview-5f874f5f--46e610cb-148d-415d-8c2a-45ace4b42cfc.lovable.app-1781518490871.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3a6f422d-945f-4fd3-91fd-c98ae2b26a49/id-preview-5f874f5f--46e610cb-148d-415d-8c2a-45ace4b42cfc.lovable.app-1781518490871.png" },
     ],
     links: [
       {
