@@ -15,6 +15,7 @@ import type { Category } from "@/lib/codescan-types";
 import { CATEGORIES } from "@/lib/codescan-types";
 import { TopBar } from "@/components/codescan/TopBar";
 import { CategoryTabs } from "@/components/codescan/CategoryTabs";
+import type { ViewTab } from "@/components/codescan/CategoryTabs";
 import { FindingCard } from "@/components/codescan/FindingCard";
 import { ScanningState } from "@/components/codescan/ScanningState";
 import { ManualInput } from "@/components/codescan/ManualInput";
@@ -48,7 +49,7 @@ function Index() {
   const genTests = useServerFn(generateEdgeCaseTests);
   const genSuite = useServerFn(generateTestSuite);
   const runCi = useServerFn(runPipeline);
-  const [activeTab, setActiveTab] = useState<Category>("bugs");
+  const [activeTab, setActiveTab] = useState<ViewTab>("bugs");
   const [copied, setCopied] = useState(false);
   const [tested, setTested] = useState<{ code: string; language: string }>({ code: "", language: "" });
   const autoRan = useRef(false);
