@@ -53,22 +53,26 @@ export function ManualInput({
           suggestions.
         </p>
         <div className="flex flex-col gap-2 rounded-lg border border-cs-border bg-cs-surface p-3">
-          <label className="text-xs font-medium text-cs-muted">
+          <label htmlFor="repo-url" className="text-xs font-medium text-cs-muted">
             Review an entire public GitHub repo
           </label>
           <input
+            id="repo-url"
             value={repoUrl}
             onChange={(e) => setRepoUrl(e.target.value)}
             placeholder="https://github.com/owner/repo"
             spellCheck={false}
+            aria-label="Public GitHub repository URL"
             className="min-w-0 rounded-md border border-cs-border bg-cs-surface-2 px-3 py-2.5 font-mono text-xs text-cs-text outline-none placeholder:text-cs-muted focus:border-cs-info"
           />
           <div className="flex items-center gap-2">
             <input
+              id="repo-branch"
               value={repoBranch}
               onChange={(e) => setRepoBranch(e.target.value)}
               placeholder="branch (default)"
               spellCheck={false}
+              aria-label="Repository branch"
               className="min-w-0 flex-1 rounded-md border border-cs-border bg-cs-surface-2 px-3 py-2.5 font-mono text-xs text-cs-text outline-none placeholder:text-cs-muted focus:border-cs-info"
             />
             <button
@@ -85,11 +89,12 @@ export function ManualInput({
           </p>
         </div>
         <div className="flex flex-col gap-2 rounded-lg border border-cs-border bg-cs-surface p-3">
-          <label className="text-xs font-medium text-cs-muted">
+          <label htmlFor="gh-file-url" className="text-xs font-medium text-cs-muted">
             Review from a public GitHub file
           </label>
           <div className="flex items-center gap-2">
             <input
+              id="gh-file-url"
               value={ghUrl}
               onChange={(e) => setGhUrl(e.target.value)}
               onKeyDown={(e) => {
@@ -97,6 +102,7 @@ export function ManualInput({
               }}
               placeholder="https://github.com/owner/repo/blob/main/file.js"
               spellCheck={false}
+              aria-label="Public GitHub file URL"
               className="min-w-0 flex-1 rounded-md border border-cs-border bg-cs-surface-2 px-3 py-2.5 font-mono text-xs text-cs-text outline-none placeholder:text-cs-muted focus:border-cs-info"
             />
             <button
@@ -111,9 +117,14 @@ export function ManualInput({
           {ghError && <p className="text-xs text-cs-critical">{ghError}</p>}
         </div>
         <div className="flex items-center gap-2">
+          <label htmlFor="language-select" className="sr-only">
+            Programming language
+          </label>
           <select
+            id="language-select"
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
+            aria-label="Programming language"
             className="rounded-md border border-cs-border bg-cs-surface-2 px-3 py-2.5 text-sm text-cs-text outline-none focus:border-cs-info"
           >
             {LANGUAGES.map((l) => (
@@ -139,11 +150,16 @@ export function ManualInput({
 
       {/* Right column — textarea */}
       <div className="flex flex-col gap-3">
+        <label htmlFor="code-input" className="sr-only">
+          Code to review
+        </label>
         <textarea
+          id="code-input"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="// Paste your code here..."
           spellCheck={false}
+          aria-label="Code to review"
           className="min-h-64 flex-1 resize-none rounded-lg border border-cs-border bg-cs-surface p-4 font-mono text-sm text-cs-text outline-none placeholder:text-cs-muted focus:border-cs-info lg:min-h-0"
         />
         <button

@@ -29,7 +29,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
           </span>
         )}
       </div>
-      <h3 className="text-base font-bold text-cs-text">{finding.title}</h3>
+      <h2 className="text-base font-bold text-cs-text">{finding.title}</h2>
       <p className="mt-1.5 text-sm leading-relaxed text-cs-muted">{finding.description}</p>
       {finding.suggestion && (
         <div className="mt-3 rounded-md border border-cs-info/20 bg-cs-info/5 p-3">
