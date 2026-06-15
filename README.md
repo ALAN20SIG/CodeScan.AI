@@ -1,6 +1,6 @@
 # CodeScan AI
 
-AI-powered code review for bugs, security vulnerabilities, quality issues, and improvement suggestions. Supports manual code input and full GitHub repository analysis with automated edge-case testing.
+AI-powered code review for bugs, security vulnerabilities, quality issues, improvement suggestions, and comprehensive testing. Supports manual code input, full GitHub repository analysis, automated edge-case testing, full test suite generation, and CI/CD pipeline simulation.
 
 ![Tech Stack](https://img.shields.io/badge/TanStack%20Start-v1-blue)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
@@ -12,7 +12,7 @@ AI-powered code review for bugs, security vulnerabilities, quality issues, and i
 ## Features
 
 ### 1. AI Code Review
-Submit any code snippet or fetch an entire GitHub repository for a comprehensive AI-powered review. Reviews analyze across four categories:
+Submit any code snippet or fetch an entire GitHub repository for a comprehensive AI-powered review. Reviews analyze across four core categories:
 
 | Category | Description |
 |----------|-------------|
@@ -36,10 +36,53 @@ Paste any public GitHub repo URL and CodeScan AI will:
 - Deep-review architecture, structure, and code quality
 - Surface repository-wide security and quality issues
 
-### 3. Edge-Case Testing (JS/TS)
+### 3. Full Test Suite & Evaluation
+Generate and run a comprehensive AI-designed test suite covering **seven test categories**:
+
+| Category | Description |
+|----------|-------------|
+| **Edge cases** | Boundary conditions, empty/null inputs, large values, tricky paths |
+| **Unit** | Isolated function/class behaviour with deterministic assertions |
+| **Functional** | End-to-end behaviour of a feature or flow |
+| **API & endpoints** | Endpoint contract, request/response validation, status codes, schema, auth |
+| **A/B testing** | Experiment design — variants, metrics, sample size, success criteria |
+| **Vulnerability** | Security tests (injection, XSS, authz, secrets, unsafe deserialization) |
+| **CI/CD pipeline** | Pipeline checks (build, lint, typecheck, test stage, deploy gates) |
+
+Each test case shows:
+- **How it's tested** — description of the test approach
+- **Validation** — how results / endpoints / behaviour are validated
+- **Pass/fail status** with detailed error messages for failures
+- **Save results** as a downloadable `.txt` evaluation report
+
+The evaluation panel includes:
+- **Overall grade** (A+ through F)
+- **Verdict** — AI assessment of test coverage and code testability
+- **Reasoning toggle** — show/hide the AI's step-by-step reasoning behind the grade
+- **Recommendations** — actionable improvements
+
+### 4. CI/CD Pipeline Simulation
+Simulate a full CI/CD pipeline with realistic fail-fast behaviour across five stages:
+
+| Stage | Description |
+|-------|-------------|
+| **Lint** | Code style, formatting, and static analysis checks |
+| **Unit** | Unit test execution and coverage validation |
+| **Integration** | Integration test execution and API contract validation |
+| **Build** | Compilation, bundling, and asset generation |
+| **Deploy** | Deployment gate checks and environment readiness |
+
+Features:
+- **Fail-fast skipping** — once a stage fails, downstream stages are marked as skipped
+- **Per-stage duration**, summary, logs, and issue lists
+- **Final CI grade** (A through F) based on pipeline health
+- **Collapsible log details** for each stage
+- **Save results** and **Re-run pipeline** controls
+
+### 5. Edge-Case Testing (JS/TS)
 After any review, run automated edge-case tests that:
 - Generate boundary-condition test cases via AI
-- Execute tests safely in the browser sandbox
+- Execute tests safely in a browser sandbox
 - Report pass/fail status for each individual test
 - Show detailed error messages for failures
 - **Save results** as a downloadable text report
@@ -50,8 +93,10 @@ Tests cover:
 - Large values and overflow scenarios
 - Tricky control-flow paths
 
-### 4. Export & Share
+### 6. Export & Share
 - Copy the full review report as Markdown to clipboard
+- Save test suite evaluation results as `.txt` files
+- Save CI/CD pipeline results as `.txt` files
 - Save edge-case test results as `.txt` files
 
 ---
@@ -79,23 +124,28 @@ Tests cover:
 src/
 ├── routes/
 │   ├── __root.tsx              # Root layout (HTML shell)
-│   ├── index.tsx               # Main page — review UI, results, test panel
+│   ├── index.tsx               # Main page — review UI, results, all panels
 │   └── routeTree.gen.ts        # Auto-generated route tree (do not edit)
 ├── components/
 │   └── codescan/
 │       ├── TopBar.tsx          # Header with language & grade
 │       ├── ManualInput.tsx     # Code editor + GitHub repo input form
-│       ├── CategoryTabs.tsx    # Tab navigation (Bugs / Security / Quality / Suggestions)
+│       ├── CategoryTabs.tsx    # Tab navigation (Bugs, Security, Quality, Suggestions, Edge, Suite, CI/CD)
 │       ├── FindingCard.tsx     # Individual review finding card
 │       ├── ScanningState.tsx   # Loading skeleton animation
 │       ├── TestPanel.tsx       # Edge-case test runner & results display
+│       ├── TestSuitePanel.tsx  # Full test suite & evaluation panel
+│       ├── PipelinePanel.tsx   # CI/CD pipeline simulation panel
 │       └── BottomBar.tsx       # Footer actions (Review again, Copy report)
 ├── lib/
 │   ├── codescan-types.ts       # Shared TypeScript interfaces
 │   ├── review.functions.ts     # Server function: single-file AI review
 │   ├── repo-review.functions.ts# Server function: GitHub repo fetch + review
 │   ├── test-runner.functions.ts# Server function: AI-generated edge-case tests
-│   ├── run-tests.ts            # Browser sandbox test executor
+│   ├── test-suite.functions.ts # Server function: full test suite generation
+│   ├── pipeline.functions.ts   # Server function: CI/CD pipeline simulation
+│   ├── run-tests.ts            # Browser sandbox edge-case test executor
+│   ├── run-suite.ts            # Browser sandbox full suite test executor
 │   ├── report.ts               # Markdown report builder
 │   └── ai-gateway.server.ts  # AI provider configuration (server-only)
 ├── router.tsx                  # TanStack Router setup
@@ -126,7 +176,7 @@ The app will be available at `http://localhost:3000`.
 Create a `.env` file in the project root:
 
 ```env
-# Required — AI review & test generation
+# Required — AI review, test generation, and pipeline simulation
 LOVABLE_API_KEY=your_lovable_ai_gateway_key
 
 # Optional — only needed if using Supabase/Lovable Cloud features
@@ -134,7 +184,7 @@ VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-> **Note:** `LOVABLE_API_KEY` is required for the AI review features to work.
+> **Note:** `LOVABLE_API_KEY` is required for all AI-powered features to work.
 
 ---
 
@@ -145,15 +195,28 @@ VITE_SUPABASE_PUBLISHABLE_KEY=
 2. Select the programming language
 3. Click **Review code**
 4. Browse findings by category (Bugs, Security, Quality, Suggestions)
-5. Click **Run tests** to generate and execute edge-case tests (JS/TS only)
-6. Click **Save results** to download the test report
+5. Switch to the **Edge** tab to run edge-case tests (JS/TS only)
+6. Switch to the **Suite** tab to generate and run the full test suite
+7. Switch to the **CI/CD** tab to simulate the deployment pipeline
+8. Click **Save results** to download any test or pipeline report
 
 ### Repository Review
 1. Paste a public GitHub repository URL (e.g., `https://github.com/owner/repo`)
 2. Optionally specify a branch (defaults to the repo's default branch)
 3. Click **Review repository**
 4. View the file tree, language breakdown, and AI findings
-5. Run edge-case tests on the key files fetched from the repo
+5. Run edge-case tests, the full test suite, and CI/CD pipeline on the key files
+
+### Navigation Tabs
+| Tab | Content |
+|-----|---------|
+| Bugs | Logic errors and runtime issues |
+| Security | Vulnerabilities and unsafe patterns |
+| Quality | Maintainability and architecture |
+| Suggestions | Improvements and refactor ideas |
+| Edge | Edge-case test runner (JS/TS) |
+| Suite | Full test suite & AI evaluation |
+| CI/CD | Pipeline simulation (lint → unit → integration → build → deploy) |
 
 ### Keyboard Shortcuts
 | Action | Shortcut |
@@ -169,11 +232,13 @@ All AI operations run server-side via TanStack Start server functions:
 - **`reviewCode`** — Analyzes a single code snippet
 - **`reviewRepo`** — Fetches GitHub repo metadata + key files, then runs AI analysis
 - **`generateEdgeCaseTests`** — Generates a JSON test plan with runnable JS assertions
+- **`generateTestSuite`** — Generates a comprehensive 7-category test suite with evaluation
+- **`runPipeline`** — Simulates CI/CD pipeline stages with fail-fast logic
 
 These functions use the Lovable AI Gateway (Gemini 3 Flash) and return strictly-typed JSON responses.
 
 ### Client-Side Test Execution
-Edge-case tests are executed in the **browser** (not the server) via a sandboxed `new Function()` approach with:
+Tests are executed in the **browser** (not the server) via a sandboxed `new Function()` approach with:
 - 3-second timeout per test (`Promise.race`)
 - Safe isolation — no DOM, network, or filesystem access
 - Only supports JavaScript/TypeScript code that can be transpiled to plain JS
@@ -190,22 +255,83 @@ No GitHub token is required for public repositories. Rate limits apply.
 
 ## Supported Languages
 
-| Language | Review | Repo Analysis | Edge-Case Tests |
-|----------|--------|---------------|-----------------|
-| JavaScript | ✅ | ✅ | ✅ |
-| TypeScript | ✅ | ✅ | ✅ |
-| Python | ✅ | ✅ | ❌ |
-| Go | ✅ | ✅ | ❌ |
-| Rust | ✅ | ✅ | ❌ |
-| Java | ✅ | ✅ | ❌ |
-| C / C++ | ✅ | ✅ | ❌ |
-| Ruby | ✅ | ✅ | ❌ |
-| PHP | ✅ | ✅ | ❌ |
-| C# | ✅ | ✅ | ❌ |
-| Swift | ✅ | ✅ | ❌ |
-| Kotlin | ✅ | ✅ | ❌ |
+| Language | Review | Repo Analysis | Edge-Case Tests | Test Suite | CI/CD |
+|----------|--------|---------------|-----------------|------------|-------|
+| JavaScript | ✅ | ✅ | ✅ | ✅ | ✅ |
+| TypeScript | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Python | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Go | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Rust | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Java | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| C / C++ | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Ruby | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| PHP | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| C# | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Swift | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
+| Kotlin | ✅ | ✅ | ❌ | ℹ️ | ℹ️ |
 
-> Edge-case tests require JS/TS because they execute in a browser JavaScript sandbox.
+> **Legend:** ✅ Fully supported (executable tests) | ℹ️ Informational tests only (non-JS/TS languages generate test plans but cannot run in the browser JS sandbox)
+
+---
+
+## Deployment
+
+### Vercel
+
+This project is configured for deployment on **Vercel** using the `vercel-edge` preset.
+
+#### Step 1: Push to GitHub
+Make sure your code is in a GitHub repository:
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/codescan-ai.git
+git push -u origin main
+```
+
+#### Step 2: Import to Vercel
+1. Go to [vercel.com](https://vercel.com) and sign in
+2. Click **Add New Project**
+3. Import your GitHub repository
+4. Vercel will auto-detect Bun (via `packageManager` in `package.json`)
+
+#### Step 3: Configure Environment Variables
+In the Vercel dashboard for your project, go to **Settings → Environment Variables** and add:
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `LOVABLE_API_KEY` | Your Lovable AI Gateway key | Yes |
+| `VITE_SUPABASE_URL` | Your Supabase URL | Only if using Lovable Cloud |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase publishable key | Only if using Lovable Cloud |
+
+> **Important:** `LOVABLE_API_KEY` is required for AI features. Without it, reviews and tests will fail.
+
+#### Step 4: Deploy
+Click **Deploy**. Vercel will build and deploy your site automatically on every push to the main branch.
+
+#### Build Configuration (already set)
+- **Framework Preset:** Other (handled by `vercel.json`)
+- **Build Command:** `bun run build`
+- **Output Directory:** auto-detected by Nitro (`vercel-edge` preset)
+- **Install Command:** `bun install`
+
+The `vite.config.ts` in this repo already configures the `vercel-edge` Nitro preset for optimal SSR performance on Vercel's edge network.
+
+> **Note:** When you run `bun run build` locally or in the Lovable sandbox, you'll see `wrangler.json` generated — this is because the Lovable config forces Cloudflare for preview builds. When Vercel runs the build on its own infrastructure, the `vercel-edge` preset takes effect and the output is correctly formatted for Vercel.
+
+#### Troubleshooting
+- **Build fails:** Ensure `LOVABLE_API_KEY` is set in Vercel environment variables
+- **Rate limit errors:** The app handles 429 responses gracefully; wait a moment and retry
+- **AI credits exhausted:** Check your Lovable workspace credits
+
+### Lovable (Alternative)
+You can also deploy directly from the Lovable editor:
+1. Click **Publish** in the top-right corner
+2. Your site will be live at a `.lovable.app` URL
+3. Frontend changes require clicking **Update** to go live
+4. Backend changes (server functions) deploy automatically
 
 ---
 
