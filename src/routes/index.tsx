@@ -263,6 +263,7 @@ function ResultView({
   result,
   activeTab,
   setActiveTab,
+  onConfigure,
   onReviewAgain,
   onCopy,
   copied,
@@ -279,10 +280,15 @@ function ResultView({
   pipelinePending,
   pipelineResult,
   pipelineError,
+  onRunArch,
+  archPending,
+  archResult,
+  archError,
 }: {
   result: import("@/lib/codescan-types").ReviewResult;
   activeTab: ViewTab;
   setActiveTab: (c: ViewTab) => void;
+  onConfigure: () => void;
   onReviewAgain: () => void;
   onCopy: () => void;
   copied: boolean;
@@ -299,13 +305,17 @@ function ResultView({
   pipelinePending: boolean;
   pipelineResult: import("@/lib/codescan-types").PipelineResult | null;
   pipelineError: string | null;
+  onRunArch: () => void;
+  archPending: boolean;
+  archResult: import("@/lib/codescan-types").ArchitectureResult | null;
+  archError: string | null;
 }) {
   const items = result.findings.filter((f) => f.category === activeTab);
   const tabLabel = CATEGORIES.find((c) => c.key === activeTab)?.label ?? "";
 
   return (
     <>
-      <TopBar language={result.language} grade={result.grade} />
+      <TopBar language={result.language} grade={result.grade} onConfigure={onConfigure} />
       {result.structure && <RepoStructurePanel structure={result.structure} />}
       {result.summary && (
         <p className="border-b border-cs-border bg-cs-surface px-4 py-3 text-sm leading-relaxed text-cs-muted md:px-6">
@@ -319,6 +329,9 @@ function ResultView({
         edgeStatus={testResult ? (testResult.failed === 0 ? "passed" : "failed") : null}
         suiteStatus={suiteRun ? (suiteRun.failed === 0 ? "passed" : "failed") : null}
         pipelineStatus={pipelineResult ? (pipelineResult.success ? "passed" : "failed") : null}
+        archStatus={
+          archResult ? (archResult.issues.some((i) => i.severity === "critical") ? "failed" : "passed") : null
+        }
       />
       {activeTab === "edge" ? (
         <div className="flex-1 overflow-y-auto">
@@ -347,6 +360,16 @@ function ResultView({
             isPending={pipelinePending}
             result={pipelineResult}
             error={pipelineError}
+            canRun={canRunTests}
+          />
+        </div>
+      ) : activeTab === "arch" ? (
+        <div className="flex-1 overflow-y-auto">
+          <ArchitecturePanel
+            onRun={onRunArch}
+            isPending={archPending}
+            result={archResult}
+            error={archError}
             canRun={canRunTests}
           />
         </div>
