@@ -10,6 +10,7 @@ import { reviewRepo } from "@/lib/repo-review.functions";
 import { generateEdgeCaseTests } from "@/lib/test-runner.functions";
 import { generateTestSuite } from "@/lib/test-suite.functions";
 import { runPipeline } from "@/lib/pipeline.functions";
+import { analyzeArchitecture } from "@/lib/architecture.functions";
 import { buildMarkdownReport } from "@/lib/report";
 import { CATEGORIES } from "@/lib/codescan-types";
 import { TopBar } from "@/components/codescan/TopBar";
@@ -21,6 +22,9 @@ import { ManualInput } from "@/components/codescan/ManualInput";
 import { TestPanel } from "@/components/codescan/TestPanel";
 import { TestSuitePanel } from "@/components/codescan/TestSuitePanel";
 import { PipelinePanel } from "@/components/codescan/PipelinePanel";
+import { ArchitecturePanel } from "@/components/codescan/ArchitecturePanel";
+import { ModelConfigPanel } from "@/components/codescan/ModelConfigPanel";
+import { useModel } from "@/lib/use-model";
 import { BottomBar } from "@/components/codescan/BottomBar";
 
 const searchSchema = z.object({
