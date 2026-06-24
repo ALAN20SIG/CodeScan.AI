@@ -212,6 +212,7 @@ function Index() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col bg-cs-bg font-sans text-cs-text">
+      <ModelConfigPanel open={configOpen} onClose={() => setConfigOpen(false)} />
       {isPending ? (
         <ScanningState />
       ) : data ? (
@@ -219,12 +220,14 @@ function Index() {
           result={data}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          onConfigure={() => setConfigOpen(true)}
           onReviewAgain={() => {
             mutation.reset();
             repoMutation.reset();
             testMutation.reset();
             suiteMutation.reset();
             pipelineMutation.reset();
+            archMutation.reset();
           }}
           onCopy={handleCopy}
           copied={copied}
@@ -241,10 +244,14 @@ function Index() {
           pipelinePending={pipelineMutation.isPending}
           pipelineResult={pipelineMutation.data ?? null}
           pipelineError={pipelineError}
+          onRunArch={handleRunArch}
+          archPending={archMutation.isPending}
+          archResult={archMutation.data ?? null}
+          archError={archError}
         />
       ) : (
         <>
-          <TopBar language="—" grade="—" />
+          <TopBar language="—" grade="—" onConfigure={() => setConfigOpen(true)} />
           <ManualInput onSubmit={handleSubmit} onRepoSubmit={handleRepoSubmit} error={errorMessage} />
         </>
       )}
