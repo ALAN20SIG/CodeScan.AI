@@ -17,7 +17,7 @@ export function BottomBar({
       </button>
       <button
         onClick={onCopy}
-        className="rounded-md bg-cs-info px-4 py-2.5 text-sm font-semibold text-cs-bg transition-colors hover:bg-cs-info/90"
+        className="rounded-md bg-cs-success px-4 py-2.5 text-sm font-semibold text-cs-bg transition-colors hover:bg-cs-success/90"
       >
         {copied ? "Copied!" : "Copy report"}
       </button>
