@@ -438,7 +438,8 @@ You can also deploy directly from the Lovable editor:
 
 ## Design Tokens
 
-The app uses a custom dark-themed color system defined in `src/styles.css`:
+The app uses a custom **GitHub-dark** themed color system defined in `src/styles.css`
+(`#0d1117` canvas, `#161b22` surfaces, `#30363d` borders):
 
 | Token | Purpose |
 |-------|---------|
@@ -446,8 +447,8 @@ The app uses a custom dark-themed color system defined in `src/styles.css`:
 | `--cs-surface` | Card / panel surfaces |
 | `--cs-text` | Primary text |
 | `--cs-muted` | Secondary / helper text |
-| `--cs-info` | Accent / action color |
-| `--cs-success` | Positive states (passing tests) |
+| `--cs-info` | Info accent (links, info-severity findings) |
+| `--cs-success` | Primary action buttons (GitHub green) & passing tests |
 | `--cs-critical` | Negative states (failures, critical issues) |
 | `--cs-warning` | Warning severity |
 
