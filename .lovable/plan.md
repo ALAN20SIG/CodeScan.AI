@@ -1,43 +1,36 @@
-## CodeScan AI — AI-powered code reviewer for a VS Code webview
+# GitHub Dark Theme
 
-A dark, narrow-width (~400px) single-page app that reviews code with AI and renders categorized findings. Built on the existing TanStack Start template.
+The CodeScan tokens (`--color-cs-*`) already use GitHub dark colors, but the base shadcn tokens (`--background`, `--primary`, `--card`, buttons, inputs, dialogs, tabs, etc.) still use the default slate palette. This plan retunes those base tokens to GitHub Dark so every component — dialogs, dropdowns, inputs, tabs, tooltips, the config panel — matches.
 
-### AI approach (decided)
-Use **Lovable AI Gateway** (your built-in AI, billed from workspace credits) instead of the Anthropic API. `claude-sonnet-4-6` is not available through the gateway, so the review runs on `google/gemini-3-flash-preview`. The model is instructed to return the exact JSON shape you specified. The AI call lives in a **server function** so no key is ever exposed in the browser — the app still behaves as a fully self-contained webview (no login screen, no user-managed key).
+## Changes
 
-### Routing & entry behavior
-- Single route `/` (the webview panel).
-- On load, read `?code=...&lang=...` from the URL via `validateSearch`.
-  - If `code` is present → auto-trigger the review immediately (skip the input screen).
-  - If absent → show the manual input screen.
+All edits are in `src/styles.css` (no component changes needed since components use semantic tokens).
 
-### Screens / states
-1. **Manual input** (fallback): full-width monospace `<textarea>`, language dropdown (JavaScript, TypeScript, Python, Go, Rust, Java, C++, Other), and a prominent "Review Code" button.
-2. **Loading/scanning**: pulsing code-block placeholder, "Analyzing your code…", and the 4 category labels (Bugs, Security, Quality, Suggestions) fading in one by one (staggered).
-3. **Results**:
-   - **Top bar**: "CodeScan AI" on the left; language badge + colored letter grade on the right (red D/F, amber C, green A/B).
-   - **Tab row**: Bugs · Security · Quality · Suggestions, each with a count badge.
-   - **Main panel**: finding cards for the active tab. Each card = severity badge (critical=red, warning=amber, info=blue), bold white title, muted description, optional inline line-number tag, highlighted suggestion block. Empty category → subtle green check + "No issues found".
-   - **Sticky bottom bar**: "Review again" (back to input/re-run) and "Copy report" (copies markdown summary to clipboard).
-4. **Error state**: clear message for AI failures (rate limit / credits exhausted / parse failure) with retry, preserving entered code.
+1. **Make dark the active theme**
+   - Ensure the app renders with the `.dark` class applied (set on `<html>` in `src/routes/__root.tsx` if not already), so the GitHub dark values are used app-wide.
 
-### Design
-- Dark GitHub theme: background `#0d1117`, card/border tones to match, muted-gray body text, white titles.
-- Monospace font (JetBrains Mono via `<link>` in `__root.tsx`, referenced through a Tailwind `@theme` token) for all code-related text.
-- Smooth tab-switch animations and staggered fades using Framer Motion; no page reloads.
-- Tuned for ~400px width (single column, compact spacing, responsive header per the grid/min-w-0 rules).
-- Colors added as semantic tokens in `src/styles.css` (severity, grade, category accents) — no ad-hoc color classes in components.
+2. **Retune shadcn tokens to GitHub Dark** (values expressed in `oklch` to match the existing format), mapping to GitHub's palette:
 
-### Technical details
-- `src/lib/review.functions.ts` — `reviewCode` server function (`createServerFn`, POST). Input validated with Zod (`code`, `language`). Reads `LOVABLE_API_KEY` inside the handler, calls the gateway via the AI SDK `@ai-sdk/openai-compatible` provider helper, uses a system prompt enforcing the JSON shape (categories: bugs/security/quality/suggestions; severities: critical/warning/info) and returns the parsed object. Surfaces 429/402 errors clearly.
-- `src/lib/ai-gateway.server.ts` — gateway provider helper (per the Lovable gateway pattern).
-- `src/routes/index.tsx` — replaces the placeholder; owns the state machine (input → loading → results/error), reads search params, calls the server function via `useServerFn` + `useMutation`.
-- Components under `src/components/codescan/`: `TopBar`, `GradeBadge`, `CategoryTabs`, `FindingCard`, `ScanningState`, `ManualInput`, `BottomBar`.
-- `src/lib/report.ts` — builds the markdown report for "Copy report".
-- `src/lib/codescan-types.ts` — shared TS types for the review result.
-- Per-route `head()` metadata (title/description) on `/`.
-- Dependencies to add: `ai`, `@ai-sdk/openai-compatible`, `zod`, `@tanstack/zod-adapter`, `framer-motion`. Provision `LOVABLE_API_KEY` if missing.
+   ```text
+   background        #0d1117  (canvas)
+   foreground        #e6edf3  (primary text)
+   card / popover     #161b22  (surface)
+   card-foreground    #e6edf3
+   primary            #238636  (GitHub green) / fg #ffffff
+   secondary          #21262d  (button surface) / fg #e6edf3
+   muted              #161b22  / muted-fg #8b949e
+   accent             #1f6feb  (GitHub blue) / fg #ffffff
+   destructive        #da3633  / fg #ffffff
+   border             #30363d
+   input              #30363d
+   ring               #58a6ff  (focus blue)
+   ```
 
-### Notes / trade-offs
-- "Truly client-side, no backend" is replaced by a thin server function purely to keep the AI credential secret; from the user's perspective the panel is still self-contained with no login.
-- If you later obtain an Anthropic key and want the exact `claude-sonnet-4-6` model, that can be swapped into the same server function without UI changes.
+   - Update the `.dark` block (and mirror sensible values into `:root` so light-mode fallbacks still read as GitHub-toned) with the above.
+   - Optionally tune `--radius` to `0.375rem` for GitHub's tighter corners.
+
+3. **Keep the `--color-cs-*` tokens as-is** — they already match; this just brings the rest of the UI into alignment.
+
+## Notes
+- No new fonts needed — JetBrains Mono is already wired for code text; GitHub's UI font stack can stay as the existing sans default.
+- Purely presentational: no logic, routing, or server-function changes.
