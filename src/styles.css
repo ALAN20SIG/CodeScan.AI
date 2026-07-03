@@ -78,7 +78,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
 /* GitHub Dark palette applied to all shadcn tokens (both :root and .dark
    resolve to the same GitHub dark values so the whole app stays consistent). */
 :root,
