@@ -56,7 +56,7 @@ export function ManualInput({
               type="button"
               onClick={() => repoUrl.trim() && onRepoSubmit(repoUrl.trim(), repoBranch.trim())}
               disabled={!repoUrl.trim()}
-              className="shrink-0 rounded-md bg-cs-info px-4 py-2.5 text-sm font-bold text-cs-bg transition-colors hover:bg-cs-info/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shrink-0 rounded-md bg-cs-success px-4 py-2.5 text-sm font-bold text-cs-bg transition-colors hover:bg-cs-success/90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Scan repo
             </button>
@@ -114,7 +114,7 @@ export function ManualInput({
         <button
           onClick={() => onSubmit(code, language)}
           disabled={!code.trim()}
-          className="rounded-md bg-cs-info px-4 py-3 text-base font-bold text-cs-bg transition-colors hover:bg-cs-info/90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-md bg-cs-success px-4 py-3 text-base font-bold text-cs-bg transition-colors hover:bg-cs-success/90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Review Code
         </button>
